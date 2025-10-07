@@ -1,0 +1,282 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://db.onlinewebfonts.com/c/5c7613702e980cd8899ec6d18b162b59?family=sc" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="{% static 'project1/styles/home.css'%}?v=2">
+    <link rel="icon" type="image/x-icon" href="{% static 'project1/images/favicon.ico' %}">
+    <title>Document</title>
+
+</head>
+<body>
+    <div class="header">
+        <div class="upper-content">{{name}}</div>
+        <div class="down-content">
+            <div class="online-circle"></div>
+            <div class="online">Online</div>
+            <div class="installed-power">{{installed_power}}6.96kwp</div>
+            <div style="color:rgba(51, 51, 51, .6); font-weight: 600;">Online Inverter</div>
+            <div style="font-weight: 600; margin-left:5px">1</div>
+        </div>
+    </div>
+    <div class="main-box">
+        <div class="solar-box">
+            <div class="upper-box">
+                <div>Flow Graph</div>
+                <div style="margin-right: 10px;"">Plant Data&#9662;</div>
+            </div>
+            <!-- Upper solar section -->
+            <div class="solar-upper">
+                <div class="sollar-inner-box">
+                    <div class="solar-image-border">
+                        <img src="{% static 'project1/images/flow-up-white.svg' %}">
+                    </div>
+                    <div style="display: flex; flex-direction: row;">
+                        <div id="solar-output" style="font-weight: 600;">{{solar_value}}</div> <!-- completare data dinamic -->
+                        W
+                    </div>
+                </div>
+                <div class="sollar-inner-box">
+                    <div class="solar-image-border">
+                        <img src="{% static 'project1/images/flow-grid-white.svg' %}">
+                    </div>
+                    <div style="font-weight: 600; display: flex; flex-direction: row;">
+                        <div id="grid-output">20</div>
+                        W
+                    </div> <!-- completare data dinamic -->
+                    <div id="grid-status"></div> <!-- on/off grid -->
+                </div>
+            </div>
+            <!-- Middle section -->
+            <div class="solar-middle" style="margin-top:40px; margin-bottom:40px;">
+                <div class="sollar-inner-box">
+                    <div class="solar-image-border">
+                        <img src="{% static 'project1/images/flow-inverter-white.svg' %}" style="width: auto; height: auto;">
+                    </div>
+                    <div style="font-weight: 600;">Invertor</div> <!-- completare data dinamic -->
+                </div>
+                <!-- Dotted lines Up Left-->
+                <div class="dotted-horizontal-middle-up">
+                    <div class="dotted-vertical-up-left">
+                        <div class="left-up-vertical"><div class="bila1"></div></div> <!--bila1 -->
+                    </div>
+                </div>
+                <!-- Dotted lines Up Right -->
+                <div class="one-right-up">
+                    <div class="two-right-up">
+                        <div class="three-right-up"><div id="bila2"></div></div>
+                    </div>
+                </div>
+                <!-- Dotted lines Down Left -->
+                <div class="one-left-down">
+                    <div class="two-left-down">
+                        <div class="three-left-down"><div class="bila3"></div></div>
+                    </div>
+                </div>
+                <!-- Dotted lines Down Right -->
+                <div class="one-right-down">
+                    <div id="bila4"></div>
+                    <div class="two-right-down">
+                        <div class="three-right-down"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Lower section -->
+            <div class="solar-upper" style="padding: 0;">
+                 <div class="sollar-inner-box">
+                    <div class="solar-image-border">
+                        <div class="battery-procent">90%</div>
+                        <img src="{% static 'project1/images/flow-battery-50.svg' %}" style="width: auto; height: auto;padding:4px;">
+                    </div>
+                    <div style="font-weight: 600;">340W</div> <!-- completare data dinamic -->
+                </div>
+                <div class="sollar-inner-box">
+                    <div class="solar-image-border">
+                        <img src="{% static 'project1/images/flow-use-white.svg' %}" style="width: auto; height: auto;">
+                    </div>
+                    <div style="display: flex;flex-direction: row;">
+                        <div id="valueOutput" style="font-weight: 600;">{{load}}</div> <!-- completare data dinamic -->
+                        W
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="solar-box">
+            <div class="upper-box" style="margin-bottom: 20px;">
+                <div>Grid Status</div>
+                <button type="checkbox" id="grid-on-off">On/Off</button>
+            </div>
+            <div class="upper-box" style="margin-bottom: 20px;">
+                <div>House Load</div>
+                <div style="display: flex; flex-direction: row;">
+                    <div>0</div>
+                    <input type="range" id="myRange" min="0" max="10000" value="{{load}}">
+                    <div>10000</div>
+                </div>
+            </div>
+            <div class="upper-box">
+                <div>Max Solar Production</div>
+                <div style="display: flex; flex-direction: row;">
+                    <div>0</div>
+                    <input type="range" id="solar-slider" min="0" max="10000" value="5000">
+                    <div>10000</div>
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+    <script src="{% static 'project1/scripts/main.js' %}"></script>
+    <script>
+        const slider = document.getElementById("myRange");
+        const output = document.getElementById("valueOutput");
+        const gridButton = document.getElementById("grid-on-off");
+        const gridStatus = document.getElementById("grid-status");
+        const gridOutput = document.getElementById("grid-output");
+        const gridBila2 = document.getElementById("bila2");
+        const loadBila4 = document.getElementById("bila4");
+        const solarSlider= document.getElementById("solar-slider");
+        const solarOutput = document.getElementById("solar-output");
+        const solarBila1 = document.getElementById("bila2");
+
+        // load fresh grid info from the backend (on page reload)
+        const gridText = '{{grid_text}}';
+        const gridColor = '{{color}}';
+        const gridNumber = '{{grid_output}}';
+        const gridAnimation = '{{grid_animation}}';
+        gridStatus.textContent = gridText;
+        gridStatus.style.color = gridColor;
+        gridOutput.textContent = gridNumber;
+        gridBila2.style.display = gridAnimation;
+
+        // load fresh home Load from backend (on page reload)
+        const isLoadZero = '{{load_animation}}';
+        loadBila4.style.display = isLoadZero;
+
+        // this is for grid it saves to db then checks for any changes
+        gridButton.addEventListener("click", () =>{
+            saveGridToDatabase();
+        });
+        fetchGrid();
+
+        // this is for the house load saves to db then checks for changes
+        slider.addEventListener("input", () => {        
+            saveLoadToDatabase();
+        });
+        fetchLoad(); // changes values for all users
+
+        // this is for max solar production saves to db and then checks fro changes
+        solarSlider.addEventListener("input", () => {        
+            saveSolarMaxProductioToDatabase();
+        });
+        fetchSolar();
+        
+        function saveLoadToDatabase(){
+            fetch("{% url 'load_status' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: JSON.stringify({ value: slider.value }),
+            
+            })
+            .then(response => response.json())
+            .then(data => {
+                output.textContent = data.value
+                slider.value = data.value;
+            }); // Response updates value and slider locally
+        }
+        function fetchLoad(){
+            fetch("{% url 'get_slider_value' %}")
+                .then(response => response.json())
+                .then(data =>
+                {
+                    output.textContent = data.value;
+                    slider.value = data.value;
+                    if(data.value === 0){
+                        loadBila4.style.display = "none";
+                    }
+                    else{
+                        loadBila4.style.display = "flex"; 
+                    }
+                    fetchLoad();       
+                })
+                .catch(() => {
+                    setTimeout(fetchLoad, 2000);
+                });
+        }
+        function saveGridToDatabase(){
+            fetch("{% url 'gridStatus' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                },
+            })
+        }
+        function fetchGrid(){
+            fetch("{% url 'grid-update' %}")
+            .then(response => response.json())
+            .then(data =>
+            {
+                const elem = data.grid;
+                if(elem === true){
+                    gridStatus.textContent = "On grid"
+                    gridStatus.style.color = "#6dd07f";
+                    gridOutput.textContent = "20";
+                    gridBila2.style.display = "flex";
+                }
+                else{
+                    gridStatus.textContent = "Off grid"
+                    gridStatus.style.color = "red";
+                    gridOutput.textContent = "0";
+                    gridBila2.style.display = "none";
+                }
+                
+                fetchGrid();
+            })
+            .catch(() => {
+                setTimeout(fetchGrid, 2000);
+            });
+        }
+        function saveSolarMaxProductioToDatabase(){
+            fetch("{% url 'save-solar' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: JSON.stringify({ "solarValue": solarSlider.value }),
+            
+            })
+            .then(response => response.json())
+            .then(data => {
+                solarOutput.textContent = data.solarValue;
+                solarSlider.value = data.solarValue;
+            }); // Response updates value and slider locally
+        }
+        function fetchSolar(){
+            fetch("{% url 'update-solar' %}")
+             .then(response => response.json())
+            .then(data =>
+            {
+               solarOutput.textContent = data.solar;
+               solarSlider.value = data.solar;
+               if(data.solar === 0){
+                    solarBila1.style.display = "none";  
+               }
+               else{
+                    solarBila1.style.display = "flex";
+               }
+               fetchSolar(); 
+            })
+            .catch(() => {
+                setTimeout(fetchSolar, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
