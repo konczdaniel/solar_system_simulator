@@ -30,7 +30,7 @@ DEBUG = os.environ.get("DEBUG","False").lower() == "true"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
-
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_ORIGIN", "").split(",")
 # Application definition
 
 INSTALLED_APPS = [
@@ -120,6 +120,8 @@ STATIC_URL = 'static/'
 TATICFILES_DIRS = [
     BASE_DIR / "api" / "static",   # sau doar BASE_DIR / "static" dacă folosești root
 ]
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
