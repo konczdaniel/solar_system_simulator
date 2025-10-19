@@ -5,22 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'project1/styles/register.css' %}">
-    <title>Register</title>
+    <title>Login</title>
 </head>
 <body>
     <div class="outer-box">
         <form method="post" action="">
+            {% csrf_token %}
             <div class="form-box">
-                {% csrf_token %}
                 <div class="inner-box">
                     <input name="username" class="forms-content" type="text" placeholder="Input username" required>
                     <input name="password" class="forms-content" type="text" placeholder="Input password" required>
-                    <button class="forms-content" style="cursor: pointer;" type="submit">Register</button>
+                    <button class="forms-content" style="cursor: pointer;" type="submit">Login</button>
                 </div>
+                {% if error %}
                 <div class="error-message">{{error}}</div>
+                {% endif %}
                 <div style="display: flex; align-items: center; justify-content: center; flex-direction: column; margin-top:20px; gap:5px">
-                    Already have an acount?
-                    <a href="{% url 'login' %}" class="login-button">Login</a>
+                    Create account
+                    <a href="{% url 'register' %}" class="login-button">Register</a>
                 </div>
             </div>
         </form>

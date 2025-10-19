@@ -1,0 +1,45 @@
+body{
+    margin:0;
+    font-family: "sc";
+    font-size: 14px;
+    background-color:#f1f1f1;
+}
+.outer-box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+}
+.inner-box{
+    display: flex;
+    flex-direction: column;
+    gap:15px;
+}
+.forms-content{
+    padding:10px;
+    border-radius: 10px;
+    border-width: 1px;
+    box-shadow: 0 2px 8px rgb(191, 191, 191);
+}
+.form-box{
+    border-radius: 10px;
+    border-width: 1px;
+    box-shadow: 0 2px 8px rgb(191, 191, 191);
+    width: 30vw;
+    height: 30vh;
+    padding:50px;
+    min-width: 200px;
+    max-width: 400px;
+    background-color: white;
+}
+.login-button{
+    color: purple;
+    
+}
+.error-message{
+    margin-top: 20px; 
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    color:red;
+}

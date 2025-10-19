@@ -1,11 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import JsonResponse
 import json
 import time
 from api import models
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate,login as login_auth,logout as auth_logout
+from django.contrib.auth.decorators import login_required
 
+@login_required(login_url='/login/')
 def homePage(request):
-    solar, _ = models.Solar.objects.get_or_create(solarId=1)
+    solar, _ = models.Solar.objects.get_or_create(user= request.user)
     if solar.gridStatus == True:
         grid_text = "On grid"
         color = "#6dd07f"
@@ -21,7 +25,20 @@ def homePage(request):
         load_animation= "none"
     else:
         load_animation = "flex"
-        
+    if solar.solarValue == 0:
+        solar_animation = "none"
+    else:
+        solar_animation = "flex"
+    if solar.batteryValue > 0:
+        battery_charge = "flex"
+        battery_discharge = "none"
+    elif solar.batteryValue < 0:
+        battery_charge = "none"
+        battery_discharge = "flex"
+    else:
+        battery_charge = "none"
+        battery_discharge = "none"
+
     return render(request, "project1/index.html", {
         'name': request.user,
         'load': solar.load,
@@ -31,6 +48,11 @@ def homePage(request):
         'grid_animation': grid_animation,
         'load_animation': load_animation,
         'solar_value':solar.solarValue,
+        'solar_animation':solar_animation,
+        'solar_slider': solar.solarValue,
+        'battery_value': solar.batteryValue,
+        'battery_charge': battery_charge,
+        'battery_discharge': battery_discharge,
     })
 
 
@@ -40,8 +62,7 @@ def saveLoadValue(request):
             valoare = data.get("value")
             print("Valoarea slider-ului:", valoare)
 
-            # Update instead of creating new each time
-            obj, created = models.Solar.objects.get_or_create(solarId=1)
+            obj, created = models.Solar.objects.get_or_create(user= request.user)
             obj.load = valoare
             obj.save()
 
@@ -49,16 +70,16 @@ def saveLoadValue(request):
 
 
 def loadUpdate(request):
-    lastValue= models.Solar.objects.get(solarId = 1)
+    lastValue= models.Solar.objects.get(user= request.user)
     while True:
         time.sleep(1)
-        latestValue = models.Solar.objects.get(solarId = 1)
+        latestValue = models.Solar.objects.get(user= request.user)
         if lastValue.load != latestValue.load:
             return JsonResponse({"value": latestValue.load})
 
 def saveSolarValue(request):
     if request.method =="POST":
-        obj = models.Solar.objects.get(solarId = 1)
+        obj = models.Solar.objects.get(user= request.user)
         data = json.loads(request.body)
         valoare = data.get("solarValue")
         print("Valoarea slider-ului:", valoare)
@@ -68,17 +89,17 @@ def saveSolarValue(request):
 
 
 def solarUpdate(request):
-    lastValue = models.Solar.objects.get(solarId = 1)
+    lastValue = models.Solar.objects.get(user= request.user)
     while True:
         time.sleep(1)
-        latestValue= models.Solar.objects.get(solarId = 1)
+        latestValue= models.Solar.objects.get(user= request.user)
         if latestValue.solarValue != lastValue.solarValue:
             return JsonResponse({"solar": latestValue.solarValue})
 
 
 def saveGridValue(request):
     if request.method == "POST":
-        obj = models.Solar.objects.get(solarId = 1)
+        obj = models.Solar.objects.get(user= request.user)
         if obj.gridStatus == True:
             obj.gridStatus = False
             obj.save()
@@ -90,9 +111,46 @@ def saveGridValue(request):
 
 
 def gridUpdate(request):
-    lastValue= models.Solar.objects.get(solarId = 1)
+    lastValue= models.Solar.objects.get(user= request.user)
     while True:
         time.sleep(1)
-        latestValue = models.Solar.objects.get(solarId = 1)
+        latestValue = models.Solar.objects.get(user= request.user)
         if lastValue.gridStatus != latestValue.gridStatus:
             return JsonResponse({"grid": latestValue.gridStatus})
+        
+
+def calculateSolarOutput(request):
+    obj = models.Solar.objects.get(user= request.user)
+    batteryChargeValue = obj.solarValue - obj.load
+    obj.batteryValue = batteryChargeValue
+    obj.save()
+    return JsonResponse({"bateryChargeValue": batteryChargeValue})
+
+
+def registerPage(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        all_usernames = User.objects.values_list('username', flat=True)
+        
+        if username in all_usernames:
+            return render(request, "project1/register.html",{"error":"User already exists"})
+        else:
+            user = User.objects.create_user(username,"user@mail.com",password)
+            user.save()
+            return redirect("/login/")
+        
+    return render(request, "project1/register.html")
+
+def loginPage(request):
+    if request.method =="POST":
+        usena = request.POST.get('username')
+        pwd = request.POST.get('password')
+        user = authenticate(request,username= usena, password=pwd)
+        if user is not None:
+            login_auth(request, user)
+            return redirect('/solar/')
+        else:
+            return render(request,'project1/login.html',{'error':'Wrong Username or Password'})
+           
+    return render(request,"project1/login.html")

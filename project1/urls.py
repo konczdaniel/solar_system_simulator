@@ -20,11 +20,14 @@ from api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.homePage),
+    path('solar/', views.homePage),
     path("get-update/", views.loadUpdate, name="get_slider_value"),
     path('gridStatus/', views.saveGridValue, name="gridStatus"),
     path('grid-update/', views.gridUpdate, name= "grid-update"),
     path('save-load/', views.saveLoadValue, name="load_status"),
     path('save-solar', views.saveSolarValue, name="save-solar"),
     path('update-solar', views.solarUpdate, name="update-solar"),
+    path("battery-charge", views.calculateSolarOutput, name="battery-charge"),
+    path("", views.registerPage, name="register"),
+    path("login/", views.loginPage, name="login"),
 ]

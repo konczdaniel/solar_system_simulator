@@ -60,7 +60,7 @@
                 <!-- Dotted lines Up Left-->
                 <div class="dotted-horizontal-middle-up">
                     <div class="dotted-vertical-up-left">
-                        <div class="left-up-vertical"><div class="bila1"></div></div> <!--bila1 -->
+                        <div class="left-up-vertical"><div id="bila1"></div></div> <!--bila1 -->
                     </div>
                 </div>
                 <!-- Dotted lines Up Right -->
@@ -71,8 +71,9 @@
                 </div>
                 <!-- Dotted lines Down Left -->
                 <div class="one-left-down">
+                    <div id="bila3-charge"></div>
                     <div class="two-left-down">
-                        <div class="three-left-down"><div class="bila3"></div></div>
+                        <div class="three-left-down"><div id="bila3-discharge"></div></div>
                     </div>
                 </div>
                 <!-- Dotted lines Down Right -->
@@ -90,7 +91,10 @@
                         <div class="battery-procent">90%</div>
                         <img src="{% static 'project1/images/flow-battery-50.svg' %}" style="width: auto; height: auto;padding:4px;">
                     </div>
-                    <div style="font-weight: 600;">340W</div> <!-- completare data dinamic -->
+                    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
+                        <div id="battery-value" style="font-weight: 600;">{{battery_value}}</div> <!-- completare data dinamic -->
+                        W
+                    </div>
                 </div>
                 <div class="sollar-inner-box">
                     <div class="solar-image-border">
@@ -105,7 +109,7 @@
         </div>
         <div class="solar-box">
             <div class="upper-box" style="margin-bottom: 20px;">
-                <div>Grid Status</div>
+                <div style="display: flex; align-items: center; justify-content: center;">Grid Status</div>
                 <button type="checkbox" id="grid-on-off">On/Off</button>
             </div>
             <div class="upper-box" style="margin-bottom: 20px;">
@@ -120,7 +124,7 @@
                 <div>Max Solar Production</div>
                 <div style="display: flex; flex-direction: row;">
                     <div>0</div>
-                    <input type="range" id="solar-slider" min="0" max="10000" value="5000">
+                    <input type="range" id="solar-slider" min="0" max="10000" value="{{solar_value}}">
                     <div>10000</div>
                 </div>
             </div>
@@ -139,7 +143,8 @@
         const loadBila4 = document.getElementById("bila4");
         const solarSlider= document.getElementById("solar-slider");
         const solarOutput = document.getElementById("solar-output");
-        const solarBila1 = document.getElementById("bila2");
+        const solarBila1 = document.getElementById("bila1");
+        const batteryValue = document.getElementById("battery-value");
 
         // load fresh grid info from the backend (on page reload)
         const gridText = '{{grid_text}}';
@@ -150,10 +155,24 @@
         gridStatus.style.color = gridColor;
         gridOutput.textContent = gridNumber;
         gridBila2.style.display = gridAnimation;
+        
+        // laod fresh solar info from backend
+        const solarAnimation = '{{solar_animation}}';
+        const solarSliderValue = '{{solar_slider}}';
+        solarBila1.style.display = solarAnimation;
+        solarSlider.textContent = solarSliderValue;
 
         // load fresh home Load from backend (on page reload)
         const isLoadZero = '{{load_animation}}';
         loadBila4.style.display = isLoadZero;
+
+        // laod battery value from backend (on page reload)
+        const batteryChargeAnimation = document.getElementById("bila3-charge")
+        const batteryDischargeAnimation = document.getElementById("bila3-discharge")
+        const batteryChargeOnOff = "{{battery_charge}}"
+        const batteryDischargeOnOff = "{{battery_discharge}}"
+        batteryChargeAnimation.style.display = batteryChargeOnOff
+        batteryDischargeAnimation.style.display = batteryDischargeOnOff
 
         // this is for grid it saves to db then checks for any changes
         gridButton.addEventListener("click", () =>{
@@ -173,6 +192,7 @@
         });
         fetchSolar();
         
+
         function saveLoadToDatabase(){
             fetch("{% url 'load_status' %}", {
             method: "POST",
@@ -202,6 +222,7 @@
                     else{
                         loadBila4.style.display = "flex"; 
                     }
+                    batteryCharge(); //calculate based on battery state
                     fetchLoad();       
                 })
                 .catch(() => {
@@ -266,17 +287,43 @@
                solarOutput.textContent = data.solar;
                solarSlider.value = data.solar;
                if(data.solar === 0){
+                    console.log(data.solar);
                     solarBila1.style.display = "none";  
                }
                else{
                     solarBila1.style.display = "flex";
                }
+               batteryCharge();  // calculate based on battery state
                fetchSolar(); 
             })
             .catch(() => {
                 setTimeout(fetchSolar, 2000);
             });
         }
+        function batteryCharge(){
+            fetch("{% url 'battery-charge' %}")
+            .then(response => response.json())
+            .then(data =>
+            {
+                batteryValue.textContent = data.bateryChargeValue;
+                if(data.bateryChargeValue > 0){
+                    batteryChargeAnimation.style.display = "flex"
+                    batteryDischargeAnimation.style.display = "none"
+                }
+                else if(data.bateryChargeValue < 0){
+                    batteryChargeAnimation.style.display = "none"
+                    batteryDischargeAnimation.style.display = "flex"
+                }
+                else{
+                    batteryChargeAnimation.style.display = "none"
+                    batteryDischargeAnimation.style.display = "none"
+                }
+            })
+            .catch(() => {
+                setTimeout(batteryCharge, 2000);
+            });
+        }
+    
     </script>
 </body>
 </html>
