@@ -4,29 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'project1/styles/register.css' %}">
+    <meta name="description" content="Login Page for Solar Simulator">
+    <link rel="stylesheet" href="{% static 'project1/styles/login.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'project1/images/favicon.ico' %}">
     <title>Login</title>
 </head>
 <body>
     <div class="outer-box">
-        <form method="post" action="">
-            {% csrf_token %}
+        <form id="form" method="post" action="">
             <div class="form-box">
+                {% csrf_token %}
+                <div class="login-account">Login</div>
                 <div class="inner-box">
-                    <input name="username" class="forms-content" type="text" placeholder="Input username" required>
-                    <input name="password" class="forms-content" type="text" placeholder="Input password" required>
-                    <button class="forms-content" style="cursor: pointer;" type="submit">Login</button>
+                    <input name="username" autocomplete="true" class="forms-content" type="text" placeholder="Input username" required>
+                    <input name="password" class="forms-content" type="password" placeholder="Input password" required>
+                    
+                    <button id="login-conf-button">Login{{error}}</button>
                 </div>
-                {% if error %}
-                <div class="error-message">{{error}}</div>
-                {% endif %}
                 <div style="display: flex; align-items: center; justify-content: center; flex-direction: column; margin-top:20px; gap:5px">
                     Create account
-                    <a href="{% url 'register' %}" class="login-button">Register</a>
+                    <a href="{% url 'register' %}" class="register-button">Register</a>
                 </div>
             </div>
         </form>
     </div>
-
+    <script src="{% static 'project1/scripts/login.js' %}"></script>
 </body>
 </html>

@@ -5,7 +5,8 @@ import time
 from api import models
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login as login_auth,logout as auth_logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required 
+from django.contrib.auth import login, logout
 
 @login_required(login_url='/login/')
 def homePage(request):
@@ -53,6 +54,9 @@ def homePage(request):
         'battery_value': solar.batteryValue,
         'battery_charge': battery_charge,
         'battery_discharge': battery_discharge,
+        'house_invertor': solar.invertorCapacity,
+        'solar_power': solar.instaledSolarPower,
+        'battery_capacity': solar.batteryCapacity
     })
 
 
@@ -134,13 +138,25 @@ def registerPage(request):
         all_usernames = User.objects.values_list('username', flat=True)
         
         if username in all_usernames:
-            return render(request, "project1/register.html",{"error":"User already exists"})
+            return render(request, "project1/register.html",{"error":"!"})
         else:
             user = User.objects.create_user(username,"user@mail.com",password)
             user.save()
-            return redirect("/login/")
+            login(request,user)
+            invertorCapacity = request.POST.get("invertor")
+            solarInstaledPower = request.POST.get("solar")
+            batteryCapacity = request.POST.get("battery")
+
+            obj, created = models.Solar.objects.get_or_create(user=request.user)
+            obj.invertorCapacity = invertorCapacity
+            obj.instaledSolarPower = solarInstaledPower
+            obj.batteryCapacity = batteryCapacity
+            obj.save()
+
+            return redirect('/solar/')
         
     return render(request, "project1/register.html")
+
 
 def loginPage(request):
     if request.method =="POST":
@@ -148,9 +164,28 @@ def loginPage(request):
         pwd = request.POST.get('password')
         user = authenticate(request,username= usena, password=pwd)
         if user is not None:
-            login_auth(request, user)
-            return redirect('/solar/')
+            login(request, user)
+            return redirect("/solar/")
         else:
-            return render(request,'project1/login.html',{'error':'Wrong Username or Password'})
+            return render(request, "project1/login.html",{"error":"!"})
            
     return render(request,"project1/login.html")
+
+
+def logoutUser(request):
+    logout(request)
+    return redirect('/login/') 
+
+
+def registerProduct(request):
+    invertorCapacity = request.POST.get("invertor")
+    solarInstaledPower = request.POST.get("solar")
+    batteryCapacity = request.POST.get("battery")
+
+    obj, created = models.Solar.objects.get_or_create(user=request.user)
+    obj.invertorCapacity = invertorCapacity
+    obj.instaledSolarPower = solarInstaledPower
+    obj.batteryCapacity = batteryCapacity
+    obj.save()
+
+    return redirect('/solar/')

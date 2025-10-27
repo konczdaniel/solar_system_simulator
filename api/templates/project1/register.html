@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Register Acount for Solar Simulator">
     <link rel="stylesheet" href="{% static 'project1/styles/register.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'project1/images/favicon.ico' %}">
     <title>Register</title>
 </head>
 <body>
@@ -12,12 +14,38 @@
         <form method="post" action="">
             <div class="form-box">
                 {% csrf_token %}
+                <div class="register-account">Register Account</div>
                 <div class="inner-box">
-                    <input name="username" class="forms-content" type="text" placeholder="Input username" required>
-                    <input name="password" class="forms-content" type="text" placeholder="Input password" required>
-                    <button class="forms-content" style="cursor: pointer;" type="submit">Register</button>
+                    <input name="username" autocomplete="true" class="forms-content" type="text" placeholder="Input username" required>
+                    <input name="password" class="forms-content" type="password" placeholder="Input password" required>
+                    <div class="house-outside-box">
+                        <div class="house-inner-box">
+                            Invertor Capacity
+                            <select aria-label="Invertor Capacity" class="native-select" name="invertor">
+                                <option value="6000">6kw</option>
+                                <option value="8000">8kw</option>
+                                <option value="12000">12kw</option>
+                            </select>
+                        </div>
+                        <div class="house-inner-box">
+                            Instaled solar power
+                            <select aria-label="Instaled Solar Power" class="native-select" name="solar">
+                                <option value="6000">6kw</option>
+                                <option value="8000">8kw</option>
+                                <option value="12000">12kw</option>
+                            </select>
+                        </div>
+                        <div class="house-inner-box">
+                            Battery capacity
+                            <select aria-label="Battery Capacity" class="native-select" name="battery">
+                                <option value="5000">5kw</option>
+                                <option value="10000">10kw</option>
+                                <option value="15000">15kw</option>
+                            </select>
+                        </div>
+                        <button type="submit" id="create-conf-button">Create configuration{{error}}</button>
+                    </div>
                 </div>
-                <div class="error-message">{{error}}</div>
                 <div style="display: flex; align-items: center; justify-content: center; flex-direction: column; margin-top:20px; gap:5px">
                     Already have an acount?
                     <a href="{% url 'login' %}" class="login-button">Login</a>
@@ -25,6 +53,6 @@
             </div>
         </form>
     </div>
-
+    <script src="{% static 'project1/scripts/register.js' %}"></script>
 </body>
 </html>

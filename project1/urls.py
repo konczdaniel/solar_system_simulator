@@ -28,6 +28,7 @@ urlpatterns = [
     path('save-solar', views.saveSolarValue, name="save-solar"),
     path('update-solar', views.solarUpdate, name="update-solar"),
     path("battery-charge", views.calculateSolarOutput, name="battery-charge"),
-    path("", views.registerPage, name="register"),
+    path("register/", views.registerPage, name="register"),
     path("login/", views.loginPage, name="login"),
+    path('logout/', views.logoutUser, name='logout'),
 ]
