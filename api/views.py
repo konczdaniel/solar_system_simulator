@@ -64,7 +64,6 @@ def saveLoadValue(request):
         if request.method == "POST":
             data = json.loads(request.body)
             valoare = data.get("value")
-            print("Valoarea slider-ului:", valoare)
 
             obj, created = models.Solar.objects.get_or_create(user= request.user)
             obj.load = valoare
@@ -74,31 +73,22 @@ def saveLoadValue(request):
 
 
 def loadUpdate(request):
-    lastValue= models.Solar.objects.get(user= request.user)
-    while True:
-        time.sleep(1)
-        latestValue = models.Solar.objects.get(user= request.user)
-        if lastValue.load != latestValue.load:
-            return JsonResponse({"value": latestValue.load})
+    latest_value = models.Solar.objects.get(user=request.user)
+    return JsonResponse({"value": latest_value.load})
 
 def saveSolarValue(request):
     if request.method =="POST":
         obj = models.Solar.objects.get(user= request.user)
         data = json.loads(request.body)
         valoare = data.get("solarValue")
-        print("Valoarea slider-ului:", valoare)
         obj.solarValue = valoare
         obj.save()
         return JsonResponse({"solarValue": valoare})
 
 
 def solarUpdate(request):
-    lastValue = models.Solar.objects.get(user= request.user)
-    while True:
-        time.sleep(1)
-        latestValue= models.Solar.objects.get(user= request.user)
-        if latestValue.solarValue != lastValue.solarValue:
-            return JsonResponse({"solar": latestValue.solarValue})
+    latestValue= models.Solar.objects.get(user= request.user)
+    return JsonResponse({"solar": latestValue.solarValue})
 
 
 def saveGridValue(request):
@@ -115,12 +105,8 @@ def saveGridValue(request):
 
 
 def gridUpdate(request):
-    lastValue= models.Solar.objects.get(user= request.user)
-    while True:
-        time.sleep(1)
-        latestValue = models.Solar.objects.get(user= request.user)
-        if lastValue.gridStatus != latestValue.gridStatus:
-            return JsonResponse({"grid": latestValue.gridStatus})
+    latestValue = models.Solar.objects.get(user= request.user)
+    return JsonResponse({"grid": latestValue.gridStatus})
         
 
 def calculateSolarOutput(request):

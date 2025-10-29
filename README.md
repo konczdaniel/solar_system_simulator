@@ -2,6 +2,8 @@
 
 A web-based Solar Simulation System that models and visualizes solar energy performance using an interactive frontend built with **HTML**, **CSS**, and **JavaScript**, powered by a **Django** backend written in **Python**.
 
+[Live demo click here](https://solar-system-simulator-8voo.onrender.com/)
+
 ---
 
 ## 🚀 Features
@@ -26,4 +28,6 @@ A web-based Solar Simulation System that models and visualizes solar energy perf
 
 ---
 
-![Dashboard Screenshot](images/image.png)
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+  <img src="images/image.png" style="flex: 1 1 100%; max-width: 100%; height: auto;">
+</div>
