@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Solar Simulator">
     <link rel="stylesheet" href="{% static 'project1/styles/solar.css'%}?v=2">
+    <link rel="stylesheet" href="{% static 'project1/styles/register.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'project1/images/favicon.ico' %}">
     <title>Document</title>
 
@@ -39,8 +40,8 @@
                     <div class="solar-image-border">
                         <img alt="solar" src="{% static 'project1/images/flow-up-white.svg' %}">
                     </div>
-                    <div style="display: flex; flex-direction: row;">
-                        <div id="solar-output" style="font-weight: 600;">{{solar_value}}</div>
+                    <div style="display: flex; flex-direction: row;font-weight: 600;">
+                        <div id="solar-output">{{solar_value}}</div>
                         W
                     </div>
                 </div>
@@ -94,11 +95,16 @@
             <div class="solar-upper" style="padding:0px; padding-bottom: 20px;">
                  <div class="sollar-inner-box">
                     <div class="solar-image-border">
-                        <div class="battery-procent">90%</div>
+                        <div class="battery-procent">
+                            <div id="battery-procent">
+                                {{battery_percent}}
+                            </div>
+                            %
+                        </div>
                         <img alt="battery" src="{% static 'project1/images/flow-battery-50.svg' %}" style="width: auto; height: auto;padding:4px;">
                     </div>
-                    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;">
-                        <div id="battery-value" style="font-weight: 600;">{{battery_value}}</div> <!-- completare data dinamic -->
+                    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center;font-weight: 600;">
+                        <div id="battery-value">{{battery}}</div> <!-- completare data dinamic -->
                         W
                     </div>
                 </div>
@@ -106,8 +112,8 @@
                     <div class="solar-image-border">
                         <img alt="load" src="{% static 'project1/images/flow-use-white.svg' %}" style="width: auto; height: auto;">
                     </div>
-                    <div style="display: flex;flex-direction: row;">
-                        <div id="valueOutput" style="font-weight: 600;">{{load}}</div> <!-- completare data dinamic -->
+                    <div style="display: flex;flex-direction: row; font-weight: 600;">
+                        <div id="valueOutput">{{load}}</div> <!-- completare data dinamic -->
                         W
                     </div>
                 </div>
@@ -135,6 +141,60 @@
                 </div>
             </div>
         </div>
+        <div class="solar-box">
+            <div class="upper-box" style="margin-bottom: 20px;">
+                <div style="font-weight: 600; display: flex;justify-content: center;align-items: center;">My Configuration</div>
+                <button class="edit-conf-button" id="openPopup">Edit</button>
+            </div>
+            <div class="upper-box" style="margin-bottom: 20px;">
+                <div style="display: flex;align-items: center;justify-content: center;">Invertor Capacity</div>
+                <div class="configuration-values">{{house_invertor}}</div>
+            </div>
+            <div class="upper-box" style="margin-bottom: 20px;">
+                <div style="display: flex;align-items: center;justify-content: center;">Instaled solar Power</div>
+                <div class="configuration-values">{{solar_power}}</div>
+            </div>
+            <div class="upper-box" style="margin-bottom: 20px;">
+                <div style="display: flex;align-items: center;justify-content: center;">Battery capacity</div>
+                <div class="configuration-values">{{battery_capacity}}</div>
+            </div>
+        </div>
+    </div>
+    <!-- Popup container -->
+    <div class="overlay" id="popupOverlay">
+        <div class="popup">
+            <form method="POST" action="{% url 'update_config' %}">
+                {% csrf_token %}
+                <div class="house-outside-box">
+                    <div class="house-inner-box">
+                        Invertor Capacity
+                        <select aria-label="Invertor Capacity" class="native-select" name="invertor">
+                            <option value="6000">6kw</option>
+                            <option value="8000">8kw</option>
+                            <option value="12000">12kw</option>
+                        </select>
+                    </div>
+                    <div class="house-inner-box">
+                        Instaled solar power
+                        <select aria-label="Instaled Solar Power" class="native-select" name="solar">
+                            <option value="6000">6kw</option>
+                            <option value="8000">8kw</option>
+                            <option value="12000">12kw</option>
+                        </select>
+                    </div>
+                    <div class="house-inner-box">
+                        Battery capacity
+                        <select aria-label="Battery Capacity" class="native-select" name="battery">
+                            <option value="5000">5kw</option>
+                            <option value="10000">10kw</option>
+                            <option value="15000">15kw</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="create-conf-button">Save</button>
+                </div>
+                <button type="button" class="close-btn" id="closePopup">Close</button>
+            </div>
+        </form>
     </div>
     <script>
         // Pass Django URLs to JavaScript

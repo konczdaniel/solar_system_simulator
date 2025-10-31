@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login as login_auth,logout as auth_logout
 from django.contrib.auth.decorators import login_required 
 from django.contrib.auth import login, logout
+from django.utils import timezone
 
 @login_required(login_url='/login/')
 def homePage(request):
@@ -56,7 +57,9 @@ def homePage(request):
         'battery_discharge': battery_discharge,
         'house_invertor': solar.invertorCapacity,
         'solar_power': solar.instaledSolarPower,
-        'battery_capacity': solar.batteryCapacity
+        'battery_capacity': solar.batteryCapacity,
+        'battery': solar.netPower,
+        'battery_percent': solar.batteryPrecent,
     })
 
 
@@ -110,11 +113,35 @@ def gridUpdate(request):
         
 
 def calculateSolarOutput(request):
-    obj = models.Solar.objects.get(user= request.user)
-    batteryChargeValue = obj.solarValue - obj.load
-    obj.batteryValue = batteryChargeValue
+    obj = models.Solar.objects.get(user=request.user)
+    
+    BATTERY_CAPACITY_WH = obj.batteryCapacity
+
+    # Net power entering battery (W)
+    net_power_w = obj.solarValue - obj.load
+    obj.netPower = net_power_w
+    # Energy added in Wh
+    energy_added_wh = net_power_w  / 3600
+    
+    # Update battery energy, capped at full capacity
+    obj.batteryValue += energy_added_wh
+    if obj.batteryValue > BATTERY_CAPACITY_WH:
+        obj.batteryValue = BATTERY_CAPACITY_WH
+    elif obj.batteryValue < 0:
+        obj.batteryValue = 0
+    
+    # Battery percent
+    battery_percent = round((obj.batteryValue / BATTERY_CAPACITY_WH) * 100,0)
+
+    obj.batteryPrecent = battery_percent
+
     obj.save()
-    return JsonResponse({"bateryChargeValue": batteryChargeValue})
+    
+    print(battery_percent)
+    print(obj.batteryValue)
+    print(net_power_w)
+    print(energy_added_wh)
+    return JsonResponse({"batteryPercent": battery_percent, "batteryWh": obj.batteryValue, "bateryChargeValue":net_power_w})
 
 
 def registerPage(request):
@@ -163,14 +190,25 @@ def logoutUser(request):
     return redirect('/login/') 
 
 
-def registerProduct(request):
-    invertorCapacity = request.POST.get("invertor")
-    solarInstaledPower = request.POST.get("solar")
-    batteryCapacity = request.POST.get("battery")
+def updateProduct(request):
+    invertorCapacity = int(request.POST.get("invertor"))
+    solarInstaledPower = int(request.POST.get("solar"))
+    batteryCapacity = int(request.POST.get("battery"))
 
     obj, created = models.Solar.objects.get_or_create(user=request.user)
-    obj.invertorCapacity = invertorCapacity
-    obj.instaledSolarPower = solarInstaledPower
+
+    if obj.solarValue > solarInstaledPower:
+        obj.instaledSolarPower = solarInstaledPower
+        obj.solarValue = solarInstaledPower
+    else:
+        obj.instaledSolarPower = solarInstaledPower
+
+    if obj.load > invertorCapacity:
+        obj.invertorCapacity = invertorCapacity
+        obj.load = invertorCapacity
+    else:
+        obj.invertorCapacity = invertorCapacity
+
     obj.batteryCapacity = batteryCapacity
     obj.save()
 
