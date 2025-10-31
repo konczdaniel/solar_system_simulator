@@ -61,6 +61,27 @@ fetchLoad();
 solarSlider.addEventListener("change", () => saveSolarMaxProductionToDatabase());
 fetchSolar();
 
+
+
+const openPopup = document.getElementById('openPopup');
+const closePopup = document.getElementById('closePopup');
+const popupOverlay = document.getElementById('popupOverlay');
+
+openPopup.addEventListener('click', () => {
+    popupOverlay.style.display = 'flex';
+});
+
+closePopup.addEventListener('click', () => {
+    popupOverlay.style.display = 'none';
+});
+
+// Optional: Close when clicking outside popup
+popupOverlay.addEventListener('click', (e) => {
+    if (e.target === popupOverlay) {
+    popupOverlay.style.display = 'none';
+    }
+});
+
 // Functions
 
 // ---- Save Load to DB ----
@@ -159,12 +180,14 @@ function fetchSolar() {
         .catch(() => setTimeout(fetchSolar, 2000));
 }
 
+const battery_procent = document.getElementById("battery-procent");
 // ---- Fetch Battery Charge ----
 function batteryCharge() {
     fetch(urls.battery_charge)
         .then((res) => res.json())
         .then((data) => {
             batteryValue.textContent = data.bateryChargeValue;
+            battery_procent.textContent = data.batteryPercent;
             if (data.bateryChargeValue > 0) {
                 batteryChargeAnimation.style.display = "flex";
                 batteryDischargeAnimation.style.display = "none";
